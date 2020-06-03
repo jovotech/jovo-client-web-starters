@@ -1,7 +1,11 @@
 <template>
   <div class="input-control-buttons" ref="container">
+    <el-alert show-icon type="info">You have to start the assistant before being able to record.</el-alert>
+    <el-button :size="buttonSize" type="primary" @click="handleStartAssistant">
+      Start Assistant
+    </el-button>
     <el-button
-      :disabled="isRecording"
+      :disabled="isRecording || !initialized"
       :size="buttonSize"
       :type="startButtonType"
       @click="handleStartRecording"
@@ -9,7 +13,7 @@
       Start Recording
     </el-button>
     <el-button
-      :disabled="!isRecording"
+      :disabled="!isRecording || !initialized"
       :size="buttonSize"
       :type="stopButtonType"
       @click="handleStopRecording"
@@ -17,7 +21,7 @@
       Stop Recording
     </el-button>
     <el-button
-      :disabled="!isRecording"
+      :disabled="!isRecording || !initialized"
       :size="buttonSize"
       :type="abortButtonType"
       @click="handleAbortRecording"
@@ -25,7 +29,7 @@
       Abort Recording
     </el-button>
     <el-button
-      :disabled="!hasAnyAudioOutput"
+      :disabled="!hasAnyAudioOutput || !initialized"
       :size="buttonSize"
       @click="handleStopAudioOutput"
       type="info"
@@ -56,6 +60,10 @@ export default class InputControlButtons extends Vue {
   @Prop({ required: false, type: String, default: 'warning' })
   abortButtonType!: ButtonType;
 
+  initialized = false;
+
+
+
   get isRecording(): boolean {
     return this.$assistant.data.isRecording;
   }
@@ -70,6 +78,13 @@ export default class InputControlButtons extends Vue {
 
   get isPlayingAudio(): boolean {
     return this.$assistant.data.isPlayingAudio;
+  }
+
+  async handleStartAssistant() {
+    if(!this.initialized) {
+      await this.$assistant.start();
+      this.initialized = true;
+    }
   }
 
   handleStartRecording() {
@@ -92,4 +107,10 @@ export default class InputControlButtons extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+  .input-control-buttons {
+    & > .el-alert {
+      margin-bottom: 10px;
+    }
+  }
+</style>

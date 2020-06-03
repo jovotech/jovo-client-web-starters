@@ -46,6 +46,7 @@ export default class OnePager extends Vue {
   ongoingConversation: boolean = false;
   chatClosed: boolean = false;
   messages: ConversationPart[] = [];
+  initialized = false;
 
   mounted() {
     this.$assistant.on(ConversationEvents.AddPart, (part: ConversationPart) => {
@@ -55,7 +56,11 @@ export default class OnePager extends Vue {
     });
   }
 
-  startConversation() {
+  async startConversation() {
+    if(!this.initialized) {
+      await this.$assistant.instance.start();
+      this.initialized = true;
+    }
 
     if (this.ongoingConversation) {
       this.handleOpenChat();
